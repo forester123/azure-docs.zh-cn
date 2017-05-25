@@ -47,7 +47,7 @@ Azure 磁盘加密解决方案支持以下客户方案：
 在 Microsoft Azure 中启用 IaaS VM 时，该解决方案支持以下 IaaS VM 方案：
 
 * 与 Azure 密钥保管库集成
-* 标准层 VM：[A、D、DS、G、GS 和 F 等系列 IaaS VM](https://azure.microsoft.com/pricing/details/virtual-machines/)
+* 标准层 VM：[A、D、DS 和 F 等系列 IaaS VM](https://azure.microsoft.com/pricing/details/virtual-machines/)
 * 在 Windows 和 Linux IaaS VM 及托管磁盘 VM 上启用加密
 * 在 Windows IaaS VM 和托管磁盘 VM 的 OS 和数据驱动器上禁用加密
 * 在 Linux IaaS VM 和托管磁盘 VM 的数据驱动器上禁用加密
@@ -153,13 +153,12 @@ Azure 磁盘加密管理解决方案可以解决以下业务需求：
 | Ubuntu | 16.04-DAILY-LTS | OS 和数据磁盘 |
 | Ubuntu | 14.04.5-DAILY-LTS | OS 和数据磁盘 |
 | Ubuntu | 12.10 | 数据磁盘 |
-| Ubuntu | 12.04 | 数据磁盘 |
-| RHEL | 7.3 | OS 和数据磁盘 |
+| Ubuntu | 12.04 | 数据磁盘 || RHEL | 7.3 | OS 和数据磁盘 |
 | RHEL | 7.2 | OS 和数据磁盘 |
 | RHEL | 6.8 | OS 和数据磁盘 |
 | RHEL | 6.7 | 数据磁盘 |
 | CentOS | 7.3 | OS 和数据磁盘 |
-| CentOS | 7.2n | OS 和数据磁盘 |
+| CentOS | 7.2 | OS 和数据磁盘 |
 | CentOS | 6.8 | OS 和数据磁盘 |
 | CentOS | 7.1 | 数据磁盘 |
 | CentOS | 7.0 | 数据磁盘 |
@@ -186,16 +185,16 @@ Azure 磁盘加密管理解决方案可以解决以下业务需求：
 * Azure 平台需要访问 Key Vault 中的加密密钥或机密，才能使这些密钥和机密可供虚拟机用来启动和解密虚拟机 OS 卷。 若要向 Azure 平台授予权限，请在 Key Vault 中设置 **EnabledForDiskEncryption** 属性。 有关详细信息，请参阅附录中的“为 Azure 磁盘加密设置和配置 Key Vault”。
 * Key Vault 机密和 KEK URL 必须已设置版本。 Azure 会强制实施这项版本控制限制。 有关有效的机密和 KEK URL，请参阅以下示例：
 
-  * 有效机密 URL 的示例：  *https://contosovault.vault.azure.net/secrets/BitLockerEncryptionSecretWithKek/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
-  * 有效 KEK URL 的示例：  *https://contosovault.vault.azure.net/keys/diskencryptionkek/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
+  * 有效机密 URL 的示例：  *https://contosovault.vault.azure.cn/secrets/BitLockerEncryptionSecretWithKek/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
+  * 有效 KEK URL 的示例：  *https://contosovault.vault.azure.cn/keys/diskencryptionkek/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
 
 * Azure 磁盘加密不支持将端口号指定为 Key Vault 机密和 KEK URL 的一部分。 有关不支持和支持的 Key Vault URL 的示例，请参阅以下示例：
 
-  * 不接受的 Key Vault URL： *https://contosovault.vault.azure.net:443/secrets/contososecret/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
-  * 接受的 Key Vault URL：  *https://contosovault.vault.azure.net/secrets/contososecret/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
+  * 不接受的 Key Vault URL： *https://contosovault.vault.azure.cn:443/secrets/contososecret/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
+  * 接受的 Key Vault URL：  *https://contosovault.vault.azure.cn/secrets/contososecret/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*
 
 * 若要启用 Azure 磁盘加密功能，IaaS VM 必须符合以下网络终结点配置要求：
-  * IaaS VM 必须能够连接到 Azure Active Directory 终结点 \[Login.windows.net\]，以获取用于连接 Key Vault 的令牌。
+  * IaaS VM 必须能够连接到 Azure Active Directory 终结点 \[Login.chinacloudapi.cn\]，以获取用于连接 Key Vault 的令牌。
   * IaaS VM 必须能够连接到 Key Vault 终结点，以将加密密钥写入 Key Vault。
   * IaaS VM 必须能够连接到托管 Azure 扩展存储库的 Azure 存储终结点和托管 VHD 文件的 Azure 存储帐户。
 
@@ -398,35 +397,22 @@ Azure 磁盘加密有助于保护 Key Vault 中的磁盘加密密钥和机密。
 > [!NOTE]
 > 如果已设置了订阅的 Key Vault，请跳至下一部分。
 
-![Azure 密钥保管库](./media/azure-security-disk-encryption/keyvault-portal-fig1.png)
+
 
 #### <a name="set-up-a-key-encryption-key-optional"></a>设置密钥加密密钥（可选）
 如果想要使用 KEK 为 BitLocker 加密密钥增强安全性，请将 KEK 添加到 Key Vault。 使用 [`Add-AzureKeyVaultKey`](/powershell/module/azurerm.keyvault/add-azurermkeyvaultkey) cmdlet 在 Key Vault 中创建密钥加密密钥。 还可从本地密钥管理 HSM 导入 KEK。 有关详细信息，请参阅 [Key Vault 文档](https://azure.microsoft.com/documentation/services/key-vault/)。
 
     Add-AzureKeyVaultKey [-VaultName] <string> [-Name] <string> -Destination <string> {HSM | Software}
 
-可通过 Azure Resource Manager 或 Key Vault 接口添加 KEK。
-
-![Azure 密钥保管库](./media/azure-security-disk-encryption/keyvault-portal-fig2.png)
 
 #### <a name="set-key-vault-permissions"></a>设置 Key Vault 权限
 Azure 平台需要访问 Key Vault 中的加密密钥或机密，才能使这些密钥和机密可供 VM 用来启动和解密卷。 若要向 Azure 平台授予权限，请使用以下 Key Vault PowerShell cmdlet 在 Key Vault 上设置 **EnabledForDiskEncryption** 属性：
 
     Set-AzureRmKeyVaultAccessPolicy -VaultName <yourVaultName> -ResourceGroupName <yourResourceGroup> -EnabledForDiskEncryption
 
-还可通过访问 [Azure 资源浏览器](https://resources.azure.com)来设置 **EnabledForDiskEncryption** 属性。
 
 如前所述，必须在 Key Vault 上设置 **EnabledForDiskEncryption** 属性。 否则，部署将失败。
 
-可从 Key Vault 接口设置 Azure AD 应用程序的访问策略，如下所示：
-
-![Azure 密钥保管库](./media/azure-security-disk-encryption/keyvault-portal-fig3.png)
-
-![Azure 密钥保管库](./media/azure-security-disk-encryption/keyvault-portal-fig3b.png)
-
-在“高级访问策略”上，确保为 Azure 磁盘加密启用了 Key Vault：
-
-![Azure Key Vault](./media/azure-security-disk-encryption/keyvault-portal-fig4.png)
 
 ## <a name="disk-encryption-deployment-scenarios-and-user-experiences"></a>磁盘加密部署方案和用户体验
 可启用多种磁盘加密方案，具体步骤因方案而异。 以下部分更加详细地介绍了各种方案。
@@ -652,7 +638,7 @@ Azure 平台需要访问 Key Vault 中的加密密钥或机密，才能使这些
     OsVolumeEncrypted          : NotEncrypted
     DataVolumesEncrypted       : Encrypted
     OsVolumeEncryptionSettings : Microsoft.Azure.Management.Compute.Models.DiskEncryptionSettings
-    ProgressMessage            : https://rheltest1keyvault.vault.azure.net/secrets/bdb6bfb1-5431-4c28-af46-b18d0025ef2a/abebacb83d864a5fa729508315020f8a
+    ProgressMessage            : https://rheltest1keyvault.vault.azure.cn/secrets/bdb6bfb1-5431-4c28-af46-b18d0025ef2a/abebacb83d864a5fa729508315020f8a
 
 可以检查 _Get-AzureRmVMDiskEncryptionStatus_ 的输出来获取加密密钥 URL。
 
@@ -666,12 +652,12 @@ Azure 平台需要访问 Key Vault 中的加密密钥或机密，才能使这些
 
 
     C:\> $status.OsVolumeEncryptionSettings.DiskEncryptionKey.SecretUrl
-    https://rheltest1keyvault.vault.azure.net/secrets/bdb6bfb1-5431-4c28-af46-b18d0025ef2a/abebacb83d864a5fa729508315020f8a
+    https://rheltest1keyvault.vault.azure.cn/secrets/bdb6bfb1-5431-4c28-af46-b18d0025ef2a/abebacb83d864a5fa729508315020f8a
     C:\> $status.OsVolumeEncryptionSettings.DiskEncryptionKey
 
     SecretUrl                                                                                                               SourceVault
     ---------                                                                                                               -----------
-    https://rheltest1keyvault.vault.azure.net/secrets/bdb6bfb1-5431-4c28-af46-b18d0025ef2a/abebacb83d864a5fa729508315020f8a Microsoft.Azure.Management....
+    https://rheltest1keyvault.vault.azure.cn/secrets/bdb6bfb1-5431-4c28-af46-b18d0025ef2a/abebacb83d864a5fa729508315020f8a Microsoft.Azure.Management....
 
 OSVolumeEncrypted 和 DataVolumesEncrypted 设置值为“Encrypted”，表明这两个卷都已使用 Azure 磁盘加密进行加密。 若要了解如何使用 PowerShell cmdlet 通过 Azure 磁盘加密启用加密，请参阅博客文章 [Explore Azure Disk Encryption with Azure PowerShell - Part 1](http://blogs.msdn.com/b/azuresecurity/archive/2015/11/17/explore-azure-disk-encryption-with-azure-powershell.aspx)（了解如何使用 Azure PowerShell 启用 Azure 磁盘加密 - 第 1 部分）和 [Explore Azure Disk Encryption with Azure PowerShell - Part 2](http://blogs.msdn.com/b/azuresecurity/archive/2015/11/21/explore-azure-disk-encryption-with-azure-powershell-part-2.aspx)（了解如何使用 Azure PowerShell 启用 Azure 磁盘加密 - 第 2 部分）。
 
@@ -746,7 +732,7 @@ OSVolumeEncrypted 和 DataVolumesEncrypted 设置值为“Encrypted”，表明�
 
 1. 启动 Azure PowerShell 会话，然后使用以下命令登录 Azure 帐户：
 
-    `Login-AzureRmAccount`
+    `Login-AzureRmAccount -EnvironmentName AzureChinaCloud`
 
 2. 如果有多个订阅，并想要指定其中一个要使用的订阅，请键入以下内容以查看帐户的订阅：
 
@@ -822,9 +808,9 @@ OSVolumeEncrypted 和 DataVolumesEncrypted 设置值为“Encrypted”，表明�
 ##### <a name="steps"></a>步骤
 1. 通过之前指定的分发版之一创建 VM。
 
- 对于 CentOS 7.2，通过专门的映像支持 OS 磁盘加密。 若要使用此映像，请在创建 VM 时将“7.2n”指定为 SKU：
+ 对于 CentOS 7.2，通过专门的映像支持 OS 磁盘加密。 若要使用此映像，请在创建 VM 时将“7.2”指定为 SKU：
  ```
-    Set-AzureRmVMSourceImage -VM $VirtualMachine -PublisherName "OpenLogic" -Offer "CentOS" -Skus "7.2n" -Version "latest"
+    Set-AzureRmVMSourceImage -VM $VirtualMachine -PublisherName "OpenLogic" -Offer "CentOS" -Skus "7.2" -Version "latest"
  ```
 2. 根据需要配置 VM。 如果打算加密所有（OS + 数据）驱动器，需要指定数据驱动器且可从 /etc/fstab 处装载数据驱动器。
 
@@ -864,23 +850,9 @@ OSVolumeEncrypted 和 DataVolumesEncrypted 设置值为“Encrypted”，表明�
     ```
  VM 变为“OS 磁盘加密开始”后，在支持高级存储的 VM 上将需要花费大约 40-50 分钟。
 
- 由于 WALinuxAgent 出现[问题 #388](https://github.com/Azure/WALinuxAgent/issues/388)，`OsVolumeEncrypted` 和 `DataVolumesEncrypted` 在某些发行版中显示为 `Unknown`。 在 WALinuxAgent 2.1.5 版及更高版本中，将自动修复此问题。 如果在输出中看到 `Unknown`，可通过使用 Azure 资源浏览器验证磁盘加密状态。
+ 由于 WALinuxAgent 出现[问题 #388](https://github.com/Azure/WALinuxAgent/issues/388)，`OsVolumeEncrypted` 和 `DataVolumesEncrypted` 在某些发行版中显示为 `Unknown`。 在 WALinuxAgent 2.1.5 版及更高版本中，将自动修复此问题。 
 
- 转到 [Azure 资源浏览器](https://resources.azure.com/)，然后在左侧的选择面板中展开此层次结构：
-
- ~~~~
- |-- subscriptions
-     |-- [Your subscription]
-          |-- resourceGroups
-               |-- [Your resource group]
-                    |-- providers
-                         |-- Microsoft.Compute
-                              |-- virtualMachines
-                                   |-- [Your virtual machine]
-                                        |-- InstanceView
-~~~~                
-
- 在 InstanceView 中，向下滚动以查看驱动器的加密状态。
+在 InstanceView 中，向下滚动以查看驱动器的加密状态。
 
  ![VM 实例视图](./media/azure-security-disk-encryption/vm-instanceview.png)
 
@@ -1153,7 +1125,6 @@ to
 
     # This is the passphrase that was provided for encryption during the distribution installation
     $passphrase = "contoso-password"
-
     $tags = @{"DiskEncryptionKeyEncryptionAlgorithm" = "RSA-OAEP"; "DiskEncryptionKeyFileName" = "LinuxPassPhraseFileName"}
     $secretName = [guid]::NewGuid().ToString()
     $secretValue = [Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($passphrase))
@@ -1164,8 +1135,7 @@ to
 
 在下一步中使用 `$secretUrl` 以便[在不使用 KEK 的情况下附加 OS 磁盘](#without-using-a-kek)。
 
-#### <a name="disk-encryption-secret-encrypted-with-a-kek"></a>使用 KEK 加密的磁盘加密机密
-将机密上传到 Key Vault 之前，可根据需要使用密钥加密密钥对其进行加密。 先使用包装 [API](https://msdn.microsoft.com/library/azure/dn878066.aspx) 加密使用密钥加密密钥的机密。 此包装操作的输出是 base64 URL 编码的字符串，可以使用 [`Set-AzureKeyVaultSecret`](/powershell/module/azurerm.keyvault/set-azurekeyvaultsecret) cmdlet 将其作为机密上传。
+#### <a name="disk-encryption-secret-encrypted-with-a-kek"></a>使用 KEK 加密的磁盘加密机密将机密上传到 Key Vault 之前，可根据需要使用密钥加密密钥对其进行加密。 先使用包装 [API](https://msdn.microsoft.com/library/azure/dn878066.aspx) 加密使用密钥加密密钥的机密。 此包装操作的输出是 base64 URL 编码的字符串，可以使用 [`Set-AzureKeyVaultSecret`](/powershell/module/azurerm.keyvault/set-azurekeyvaultsecret) cmdlet 将其作为机密上传。
 
     # This is the passphrase that was provided for encryption during the distribution installation
     $passphrase = "contoso-password"
@@ -1197,7 +1167,7 @@ to
     $body = "grant_type=client_credentials"
     $body += "&client_id=" + $AadClientId
     $body += "&client_secret=" + [Uri]::EscapeDataString($AadClientSecret)
-    $body += "&resource=" + [Uri]::EscapeDataString("https://vault.azure.net")
+    $body += "&resource=" + [Uri]::EscapeDataString("https://vault.azure.cn")
     $headers = @{}
 
     $response = Invoke-RestMethod -Method POST -Uri $uri -Headers $headers -Body $body
