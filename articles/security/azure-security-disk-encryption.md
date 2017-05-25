@@ -134,7 +134,8 @@ Azure 磁盘加密管理解决方案可以解决以下业务需求：
 
 > [!NOTE]
 > 禁用加密操作不会删除 Key Vault 和加密密钥材料（Windows 的 BitLocker 加密密钥或 Linux 密码）。
- > 不支持禁用 Linux 的 OS 磁盘加密。 仅允许对 Linux VM 上的数据驱动器执行解密步骤。
+
+> 不支持禁用 Linux 的 OS 磁盘加密。 仅允许对 Linux VM 上的数据驱动器执行解密步骤。
 
 ## <a name="prerequisites"></a>先决条件
 针对“概述”部分所述支持的方案，在 Azure IaaS VM 上启用 Azure 磁盘加密之前，请查看以下先决条件：
@@ -153,7 +154,8 @@ Azure 磁盘加密管理解决方案可以解决以下业务需求：
 | Ubuntu | 16.04-DAILY-LTS | OS 和数据磁盘 |
 | Ubuntu | 14.04.5-DAILY-LTS | OS 和数据磁盘 |
 | Ubuntu | 12.10 | 数据磁盘 |
-| Ubuntu | 12.04 | 数据磁盘 || RHEL | 7.3 | OS 和数据磁盘 |
+| Ubuntu | 12.04 | 数据磁盘 |
+| RHEL | 7.3 | OS 和数据磁盘 |
 | RHEL | 7.2 | OS 和数据磁盘 |
 | RHEL | 6.8 | OS 和数据磁盘 |
 | RHEL | 6.7 | 数据磁盘 |
